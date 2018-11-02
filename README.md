@@ -6,4 +6,4 @@
 
 [Masked Autoregressive Flow](https://github.com/boathit/Deep-Probabilistic-Models/tree/master/maf)
 
-[Variational AutoEncoder]()
+[Variational AutoEncoder](https://github.com/boathit/Deep-Probabilistic-Models/tree/master/vae)

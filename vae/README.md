@@ -121,14 +121,10 @@ img = torch.cat(torch.unbind(x, dim=0)).cpu().numpy()
 ```{.python .input}
 plt.figure(figsize=(4, 20))
 plt.imshow(img)
-#plt.savefig("../images/vae-1.png")
+plt.savefig("../images/vae-1.png", bbox_inches='tight')
 ```
 
 ![](../images/vae-1.png)
-
-```{.python .input}
-
-```
 
 ```{.python .input}
 

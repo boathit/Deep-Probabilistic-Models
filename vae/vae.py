@@ -46,10 +46,12 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self):
         super(Decoder, self).__init__()
-        self.f = nn.Sequential(nn.Linear(20, 400),
-                               nn.ReLU(),
-                               nn.Linear(400, 784),
-                               nn.LogSigmoid())
+        self.f = nn.Sequential(
+            nn.Linear(20, 400),
+            nn.ReLU(),
+            nn.Linear(400, 784),
+            nn.LogSigmoid()
+        )
     def forward(self, z):
         return self.f(z)
 

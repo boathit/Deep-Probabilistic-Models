@@ -16,7 +16,7 @@ from batchnorm import BatchNormTransform
 import matplotlib.pyplot as plt
 %matplotlib inline
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 ```
 
 ```{.python .input  n=3}

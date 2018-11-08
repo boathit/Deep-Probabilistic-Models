@@ -4,7 +4,7 @@
 
 We will use the `AutoRegressiveNN` and `InverseAutoregressiveFlowStable` implemented in pyro.
 
-```{.python .input}
+```{.python .input  n=1}
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -19,31 +19,15 @@ import matplotlib.pyplot as plt
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ```
 
-We can define an iaf instance with the following code
-
-`iaf = InverseAutoregressiveFlowStable(AutoRegressiveNN(2, [4]))`
-
-and get `maf` with `maf = iaf.inv`
-
-As the learnable parameters are stored in `iaf.module` so we still pass the `iafs` into the defined `MAFsDensityEstimator`.
-
-We can get the transformed distribution with a base distribution and masked autoencoder normalizing flows
-
-```{.python .input}
-dist.TransformedDistribution(
-    dist.MultivariateNormal(μ, σ),
-    mafs
-)
-```
-
-```{.python .input}
+```{.python .input  n=3}
 class MAFsDensityEstimator(nn.Module):
-    def __init__(self, D, iafs):
+    def __init__(self, D, K):
         super(MAFsDensityEstimator, self).__init__()
         modules = nn.ModuleList()
         ## inversing IAF to get MAF
         mafs = []
-        for iaf in iafs:
+        for _ in range(K):
+            iaf = InverseAutoregressiveFlowStable(AutoRegressiveNN(D, [2*D]))
             mafs.append(iaf.inv)
             modules.append(iaf.module)
             ## add batchnorm layer
@@ -66,7 +50,7 @@ class MAFsDensityEstimator(nn.Module):
 
 Let us define a target distribution to be learned.
 
-```{.python .input  n=28}
+```{.python .input  n=4}
 ## draw samples from target distribution
 def drawP(n):
     x2_dist = dist.Normal(0, 4)
@@ -79,12 +63,11 @@ def drawP(n):
 
 Drawing the training data and defining the model.
 
-```{.python .input  n=22}
+```{.python .input  n=5}
 x = drawP(512).to(device)
 
 K, D = 5, 2
-mafs = [InverseAutoregressiveFlowStable(AutoRegressiveNN(2, [4])) for _ in range(K)]
-m = MAFsDensityEstimator(D, mafs).to(device)
+m = MAFsDensityEstimator(D, K).to(device)
 optimizer = torch.optim.Adam(m.parameters(), lr=0.001)
 lossF = lambda x: -torch.mean(m(x))
 ```
@@ -112,7 +95,7 @@ for epoch in range(epochs):
 ```{.python .input  n=11}
 z = m.sample(512)
 plt.plot(z.cpu().numpy()[:, 0], z.cpu().numpy()[:, 1], ".r")
-plt.savefig("images/iaf-1.png")
+#plt.savefig("../images/iaf-1.png")
 ```
 
 ![](../images/iaf-1.png)
@@ -121,11 +104,7 @@ plt.savefig("images/iaf-1.png")
 
 ```{.python .input}
 plt.plot(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], ".r")
-plt.savefig("images/iaf-2.png")
+#plt.savefig("images/iaf-2.png")
 ```
 
 ![](../images/iaf-2.png)
-
-```{.python .input}
-
-```

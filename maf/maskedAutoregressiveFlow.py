@@ -6,15 +6,19 @@ from pyro.distributions import InverseAutoregressiveFlowStable
 from pyro.nn import AutoRegressiveNN
 from batchnorm import BatchNormTransform
 
+import matplotlib.pyplot as plt
+%matplotlib inline
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class MAFsDensityEstimator(nn.Module):
-    def __init__(self, D, iafs):
+    def __init__(self, D, K):
         super(MAFsDensityEstimator, self).__init__()
         modules = nn.ModuleList()
         ## inversing IAF to get MAF
         mafs = []
-        for iaf in iafs:
+        for _ in range(K):
+            iaf = InverseAutoregressiveFlowStable(AutoRegressiveNN(D, [2*D]))
             mafs.append(iaf.inv)
             modules.append(iaf.module)
             ## add batchnorm layer
@@ -46,8 +50,7 @@ def drawP(n):
 x = drawP(512).to(device)
 
 K, D = 5, 2
-mafs = [InverseAutoregressiveFlowStable(AutoRegressiveNN(2, [4])) for _ in range(K)]
-m = MAFsDensityEstimator(D, mafs).to(device)
+m = MAFsDensityEstimator(D, K).to(device)
 optimizer = torch.optim.Adam(m.parameters(), lr=0.001)
 lossF = lambda x: -torch.mean(m(x))
 
@@ -64,9 +67,7 @@ for epoch in range(epochs):
         optimizer.step()
     print("Epoch: {}  Loss: {}".format(epoch, epochLoss/iterations))
 
-
-import matplotlib.pyplot as plt
-%matplotlib inline
+## Visualization
 
 ## learned distribution
 z = m.sample(512)

@@ -73,12 +73,13 @@ class VAE(nn.Module):
         ## loss
         term1 = F.binary_cross_entropy_with_logits(logx̂, x, size_average=False)
         term2 = -0.5 * torch.sum(1 + 2*logσ - torch.pow(μ, 2) - torch.exp(2*logσ))
-        return term1 + term2
+        return (term1 + term2) / x.size(0)
 
 m = VAE().to(device)
 optimizer = torch.optim.Adam(m.parameters())
+iterations = len(trainLoader.dataset) // batch_size
 
-epochs = 2
+epochs = 7
 for epoch in range(epochs):
     epochLoss = 0.0
     for x, _ in trainLoader:
@@ -89,7 +90,7 @@ for epoch in range(epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    print("Epoch: {}  Loss: {}".format(epoch, epochLoss/len(trainLoader.dataset)))
+    print("Epoch: {}  Loss: {}".format(epoch, epochLoss/iterations))
 
 
 def drawsamples(decoder, n):

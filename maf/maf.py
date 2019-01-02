@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.distributions as dist
 from torch.utils import data
-from normflow import MAF, BatchNorm, Reverse, NormFlow
+from normflow import MAF, BatchNorm, Reverse, NormFlowDE
 
 from sklearn import datasets
 import time
@@ -72,7 +72,7 @@ transforms = []
 for _ in range(5):
     transforms += [MAF(D, hs), Reverse(D)]
 μ, Σ = torch.ones(D).to(device), torch.eye(D).to(device)
-m = NormFlow(μ, Σ, list(reversed(transforms))).to(device)
+m = NormFlowDE(μ, Σ, list(reversed(transforms))).to(device)
 optimizer = torch.optim.Adam(m.parameters(), lr=1e-4, amsgrad=True)
 
 train(120+1, m, optimizer)

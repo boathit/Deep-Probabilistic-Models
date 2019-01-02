@@ -241,19 +241,21 @@ class IAF(nn.Module):
 
 ################################## transforms
 
-class NormFlow(nn.Module):
+class NormFlowDE(nn.Module):
     """
+    Normalizing Flow for Density Estimation.
+
     D, hs = 2, [10, 10]
     transforms = [MAF(D, hs), Reverse(D)]
     μ, Σ = torch.ones(D), torch.eye(D)
 
-    m = NormFlow(μ, Σ, transforms)
+    m = NormFlowDE(μ, Σ, transforms)
     x = torch.rand(10, D)
     m.sample(3)
     m.log_prob(x)
     """
     def __init__(self, μ, Σ, transforms):
-        super(NormFlow, self).__init__()
+        super(NormFlowDE, self).__init__()
         self.transforms = nn.ModuleList(transforms)
         self.base_dist = dist.MultivariateNormal(μ, Σ)
 
